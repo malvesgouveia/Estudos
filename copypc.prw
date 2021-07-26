@@ -22,3 +22,14 @@ User Function copypc()
     Aadd(aPergs, {1, "Filial", cFilial	, "", "", "", ".T.", 20, .T.})
     Aadd(aPergs, {1, "Caixa" , cBanco	, "", "", "", ".T.", 20, .T.})
     Aadd(aPergs, {1, "Fechamento", dAbertu	, "", "", "", ".T.", 60, .T.})
+
+    IF ParamBox(aPergs, "Informe os dados para reabertura do caixa.", aRet,,,,,,,, .T., .T.)
+			
+		cFilial	:= MV_PAR01
+        CBANCO  := MV_PAR02
+        dAbertu := MV_PAR03
+
+		// Inicia o processamento
+		oProcess := MsNewProcess():New({|lEnd| U_ALTERMVA(MV_PAR01,CBANCO,dAbertu,)}, "Selecionando registros", "Aguarde...", .F.)
+		oProcess:Activate()
+	EndIF
