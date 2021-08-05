@@ -37,7 +37,7 @@ User Function Exptxml()
 		oProcess := MsNewProcess():New({|lEnd| U_Exptxml1(cDdata,cTdata)}, "Selecionando registros", "Aguarde...", .F.)
 		oProcess:Activate()
     Endif
-    Return
+Return
 
 /*/{Protheus.doc} User Function Exptxml1
 	(long_description)
@@ -59,8 +59,14 @@ Static Function U_Exptxml1(cDdata,cTdata)
 	Local cAliasQry     := GetNextAlias()
     Local nID           := 000001
     Local nQuantidade   := 0
+    Local aEmpresa      := FWLoadSM0()
 
-    cQuery := "SELECT TB1.ID_ENT AS ENTIDADE,NFE_ID,CNPJ,ISNULL(CAST(CAST(XML_ERP AS VARBINARY(8000)) AS VARCHAR(8000)),''),DATE_NFE,STATUS,STATUSCANC FROM SPED050 AS TB1" + ENTER
+
+
+    cQuery := "SELECT TB1.ID_ENT AS ENTIDADE,NFE_ID,CNPJ,ISNULL(CAST(CAST(XML_ERP AS VARBINARY(8000)) AS VARCHAR(8000)),'') AS XML,DATE_NFE,DOC_CHV," + ENTER
+    cQuery += "CASE STATUS WHEN '6' THEN 'Emissao' WHEN '7' THEN 'Cancelamento' ELSE '' END STATUS," +ENTER
+    cQuery += "CASE STATUSCANC WHEN '0' THEN 'Autorizada' WHEN '2' THEN 'Autorizado' WHEN '3' THEN 'Rejeitado' ELSE '' END STATUSCANC" +ENTER
+    cQuery += "FROM SPED050 AS TB1" +ENTER
     cQuery += "INNER JOIN SPED001 AS TB2 ON TB1.ID_ENT = TB2.ID_ENT" + ENTER
     cQuery += "WHERE DATE_NFE BETWEEN '" +Dtos(cDdata)+ "' AND '" +Dtos(cTdata)+ "' " + ENTER
     cQuery += "AND MODELO = '65' AND TB1.D_E_L_E_T_ = '' AND TB2.D_E_L_E_T_ = '' " + ENTER
@@ -76,18 +82,21 @@ Static Function U_Exptxml1(cDdata,cTdata)
     ELSE
 
         WHILE (cAliasQry)->(!EOF())
-            cNomePasta := (cAliasQry)->ENTIDADE
-            cXml       := CFIELD4
+
+            nPos := aScan(aEmpresa, {|x| AllTrim(Upper(x[18])) == (cAliasQry)->CNPJ})
+            cFil := cValToChar(aEmpresa[nPos][2])
+            cXml := (cAliasQry)->XML
+
 
             IF ExistDir("D:\XML")
 
-                IF ExistDir("D:\XML\"+cNomePasta)
-                   nHandle := FCreate("D:\XML\"+cNomePasta+"\"+(cAliasQry)->NFE_ID+".xml")
+                IF ExistDir("D:\XML\"+cFil)
+                   nHandle := FCreate("D:\XML\"+cFil+"\"+(cAliasQry)->DOC_CHV+"-"+(cAliasQry)->STATUS+"-"+(cAliasQry)->STATUSCANC+".xml")
                    FWrite(nHandle, cXml)
                    FClose(nHandle)
                 Else
-                    MakeDir("D:\XML\"+cNomePasta)
-                    nHandle := FCreate("D:\XML\"+cNomePasta+"\"+(cAliasQry)->NFE_ID+".xml")
+                    MakeDir("D:\XML\"+cFil)
+                    nHandle := FCreate("D:\XML\"+cFil+"\"+(cAliasQry)->DOC_CHV+"-"+(cAliasQry)->STATUS+"-"+(cAliasQry)->STATUSCANC+".xml")
                    FWrite(nHandle, cXml)
                     FClose(nHandle)
                 EndIf
@@ -96,13 +105,13 @@ Static Function U_Exptxml1(cDdata,cTdata)
 
                 MakeDir("D:\XML")
 
-                IF ExistDir("D:\XML\"+cNomePasta)
-                    nHandle := FCreate("D:\XML\"+cNomePasta+"\"+(cAliasQry)->NFE_ID+".xml")
+                IF ExistDir("D:\XML\"+cFil)
+                    nHandle := FCreate("D:\XML\"+cFil+"\"+(cAliasQry)->DOC_CHV+"-"+(cAliasQry)->STATUS+"-"+(cAliasQry)->STATUSCANC+".xml")
                     FWrite(nHandle, cXml)
                     FClose(nHandle)
                 Else
-                    MakeDir("D:\XML\"+cNomePasta)
-                    nHandle := FCreate("D:\XML\"+cNomePasta+"\"+(cAliasQry)->NFE_ID+".xml")
+                    MakeDir("D:\XML\"+cFil)
+                    nHandle := FCreate("D:\XML\"+cFil+"\"+(cAliasQry)->DOC_CHV+"-"+(cAliasQry)->STATUS+"-"+(cAliasQry)->STATUSCANC+".xml")
                     FWrite(nHandle, cXml)
                     FClose(nHandle)
                 EndIf
@@ -112,18 +121,3 @@ Static Function U_Exptxml1(cDdata,cTdata)
         EndDo
     Endif
 Return
-
-
-/*
-
-            aEmpresa := FWLoadSM0()  
-            nQtdEmp  := LEN(aEmpresa)
-            nnQuant  := 1
-
-            IF cValToChar(aEmpresa[nQuant][18]) $ cTeste
-                Msgalert("Achei a filial")
-                Return
-            Endif
-
-            nQuant++
-*/
