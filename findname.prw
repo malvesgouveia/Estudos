@@ -12,9 +12,9 @@
 /*/
 User function findname(nInAlias,cOpcOut)
   
-	Local     cNomRet          := ""
-	Default   nInAlias     := 2 // SF2
-	Default   cOpcOut          := "_NOME"
+	Local	cNomRet	 := ""
+	Default	nInAlias := 2 // SF2
+	Default	cOpcOut	 := "_NOME"
 	
 	// SF1
 	If nInAlias == 1
@@ -22,12 +22,12 @@ User function findname(nInAlias,cOpcOut)
 			DbSelectArea("SA1")
 			DbSetOrder(1)
 			DbSeek(xFilial("SA1")+SF1->F1_FORNECE+SF1->F1_LOJA)
-			cNomRet     := &("SA1->A1"+cOpcOut) //NOME
+			cNomRet := &("SA1->A1"+cOpcOut) //NOME
 		Else
 		   DbSelectArea("SA2")
 		   DbSetOrder(1)
 		   DbSeek(xFilial("SA2")+SF1->F1_FORNECE+SF1->F1_LOJA)
-		   cNomRet     := &("SA2->A2"+cOpcOut) //"_NOME
+		   cNomRet := &("SA2->A2"+cOpcOut) //"_NOME
 		Endif
 	endif
- Return cNomRet
+Return cNomRet
