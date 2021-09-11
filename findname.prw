@@ -2,7 +2,7 @@
 #include "parmtype.ch"
 
 /*/{Protheus.doc} findname
-// Retorna a Descri√ß√£o da Raz√£o Social do Cliente ou Fornecedor conforme o Tipo de Nota
+// Retorna a DescriÁ„o da Raz„o Social do Cliente ou Fornecedor conforme o Tipo de Nota
 @author Jean Carlos
 @since 20-07-20-21
 @version 1.0
